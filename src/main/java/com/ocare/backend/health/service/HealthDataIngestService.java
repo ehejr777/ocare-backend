@@ -2,6 +2,7 @@ package com.ocare.backend.health.service;
 
 import com.ocare.backend.common.exception.BusinessException;
 import com.ocare.backend.common.exception.ErrorCode;
+import com.ocare.backend.common.time.DateTimeFormatterProvider;
 import com.ocare.backend.health.dto.HealthDataUploadRequest;
 import com.ocare.backend.health.dto.HealthEntryDto;
 import com.ocare.backend.health.entity.HealthDataSource;
@@ -15,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,10 +31,6 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class HealthDataIngestService {
-
-    // "2024-12-16 14:40:00 +0000" 형태의 lastUpdate 전용 포맷 (공백 + 오프셋)
-    private static final DateTimeFormatter LAST_UPDATE_FORMAT =
-            new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss Z").toFormatter();
 
     private final HealthDataSourceRepository healthDataSourceRepository;
     private final HealthRecordEntryRepository healthRecordEntryRepository;
@@ -105,7 +100,7 @@ public class HealthDataIngestService {
             return null;
         }
         try {
-            return java.time.OffsetDateTime.parse(raw.trim(), LAST_UPDATE_FORMAT)
+            return java.time.OffsetDateTime.parse(raw.trim(), DateTimeFormatterProvider.LAST_UPDATE)
                     .withOffsetSameInstant(java.time.ZoneOffset.UTC)
                     .toLocalDateTime();
         } catch (Exception e) {

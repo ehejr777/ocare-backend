@@ -3,12 +3,11 @@ package com.ocare.backend.common.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.ocare.backend.common.time.DateTimeFormatterProvider;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 
 /**
  * 입력 데이터 이슈 대응용 커스텀 Deserializer.
@@ -23,14 +22,6 @@ import java.time.format.DateTimeFormatterBuilder;
  */
 public class FlexibleDateTimeDeserializer extends JsonDeserializer<LocalDateTime> {
 
-    private static final DateTimeFormatter SPACE_SEPARATED =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    private static final DateTimeFormatter ISO_OFFSET =
-            new DateTimeFormatterBuilder()
-                    .appendPattern("yyyy-MM-dd'T'HH:mm:ssZ")
-                    .toFormatter();
-
     @Override
     public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         String text = p.getText();
@@ -40,9 +31,9 @@ public class FlexibleDateTimeDeserializer extends JsonDeserializer<LocalDateTime
         text = text.trim();
 
         if (text.indexOf('T') >= 0) {
-            OffsetDateTime odt = OffsetDateTime.parse(text, ISO_OFFSET);
+            OffsetDateTime odt = OffsetDateTime.parse(text, DateTimeFormatterProvider.PERIOD_ISO_WITH_OFFSET);
             return odt.withOffsetSameInstant(java.time.ZoneOffset.UTC).toLocalDateTime();
         }
-        return LocalDateTime.parse(text, SPACE_SEPARATED);
+        return LocalDateTime.parse(text, DateTimeFormatterProvider.PERIOD_SPACE_SEPARATED);
     }
 }
