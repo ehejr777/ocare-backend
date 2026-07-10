@@ -116,5 +116,8 @@
 | 7b012e6e-ba2b-49c7-bc2e-473b7b58e72e | 2024-12-15 | 4005 | 0.0 | 3.2037 |
 
 ## 참고
-- INPUT_DATA1.json 과 INPUT_DATA2.json 은 동일 recordkey(`7836887b-...`)에 대해 완전히 동일한 1,066건의 entries 를 담고 있어, 저장 로직의 중복 제거 규칙에 따라 1건만 반영했습니다 (원본 5,088건 → 저장 4,022건).
-- recordkey `7b012e6e-...` (INPUT_DATA4.json) 데이터는 원본 payload 상 calories.value 가 전 구간 0 으로 내려와 있어 월별/일별 칼로리 합계도 0 으로 산출됩니다.
+- INPUT_DATA1.json: recordkey `7836887b-b12a-440f-af0f-851546504b13` (2024-11-15 ~ 2024-12-16 데이터)
+- INPUT_DATA2.json: recordkey `3b87c9a4-f983-4168-8f27-85436447bb57` (2024-11-15 ~ 2024-12-16 데이터)
+- INPUT_DATA3.json: recordkey `7b012e6e-ba2b-49c7-bc2e-473b7b58e72e` (2024-11-14 ~ 2024-12-15 데이터, calories 전부 0)
+- INPUT_DATA4.json: recordkey 확인 필요
+- 각 데이터는 서로 다른 recordkey를 가지고 있으며, 저장 로직의 중복 제거 규칙 `(recordkey, period_from, period_to)` 유니크 제약에 따라 처리됩니다.
