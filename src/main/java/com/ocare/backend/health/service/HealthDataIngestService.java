@@ -4,15 +4,10 @@ import com.ocare.backend.common.exception.BusinessException;
 import com.ocare.backend.common.exception.ErrorCode;
 import com.ocare.backend.health.dto.HealthDataUploadRequest;
 import com.ocare.backend.health.dto.HealthEntryDto;
-import com.ocare.backend.health.entity.DailyHealthSummary;
 import com.ocare.backend.health.entity.HealthDataSource;
 import com.ocare.backend.health.entity.HealthRecordEntry;
-import com.ocare.backend.health.entity.MonthlyHealthSummary;
-import com.ocare.backend.health.repository.DailyHealthSummaryRepository;
-import com.ocare.backend.health.repository.HealthAggregateProjection;
 import com.ocare.backend.health.repository.HealthDataSourceRepository;
 import com.ocare.backend.health.repository.HealthRecordEntryRepository;
-import com.ocare.backend.health.repository.MonthlyHealthSummaryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +26,7 @@ import java.util.Set;
  * 처리 흐름:
  *  1) HealthDataSource(수신 payload 메타) 저장
  *  2) entries[] 를 HealthRecordEntry 로 저장 (recordkey+period 유니크 → 중복 재수신 시 idempotent)
- *  3) 신규 저장된 entry 들이 걸쳐있는 일자/월에 대해 Daily/MonthlyHealthSummary 재집계(upsert)
+ *  3) SummaryAggregationService 에 위임하여 Daily/MonthlyHealthSummary 재집계
  */
 @Slf4j
 @Service
@@ -44,8 +39,7 @@ public class HealthDataIngestService {
 
     private final HealthDataSourceRepository healthDataSourceRepository;
     private final HealthRecordEntryRepository healthRecordEntryRepository;
-    private final DailyHealthSummaryRepository dailyHealthSummaryRepository;
-    private final MonthlyHealthSummaryRepository monthlyHealthSummaryRepository;
+    private final SummaryAggregationService summaryAggregationService;
 
     @Transactional
     public HealthDataSource ingest(HealthDataUploadRequest request) {
@@ -97,7 +91,11 @@ public class HealthDataIngestService {
             touchedDates.add(entry.period().from().toLocalDate());
         }
 
-        recomputeSummaries(request.recordkey(), touchedDates);
+        // 요약 재계산은 SummaryAggregationService에 위임
+        summaryAggregationService.recomputeSummaries(request.recordkey(), touchedDates);
+
+        log.info("헬스 데이터 저장 완료: recordkey={}, entries={}, touched_dates={}",
+                request.recordkey(), request.data().entries().size(), touchedDates.size());
 
         return source;
     }
@@ -113,58 +111,6 @@ public class HealthDataIngestService {
         } catch (Exception e) {
             log.warn("lastUpdate 파싱 실패, null 로 저장합니다. raw={}", raw);
             return null;
-        }
-    }
-
-    /** 신규 저장분이 걸쳐있는 일자(및 그 달)에 대해서만 재집계하여 불필요한 전체 재계산을 피한다. */
-    private void recomputeSummaries(String recordkey, Set<LocalDate> touchedDates) {
-        Set<String> touchedMonths = new HashSet<>();
-
-        for (LocalDate date : touchedDates) {
-            recomputeDaily(recordkey, date);
-            touchedMonths.add(date.format(DateTimeFormatter.ofPattern("yyyy-MM")));
-        }
-        for (String month : touchedMonths) {
-            recomputeMonthly(recordkey, month);
-        }
-    }
-
-    private void recomputeDaily(String recordkey, LocalDate date) {
-        LocalDateTime from = date.atStartOfDay();
-        LocalDateTime to = date.plusDays(1).atStartOfDay();
-
-        HealthAggregateProjection agg = healthRecordEntryRepository.aggregate(recordkey, from, to);
-        int totalSteps = (int) Math.round(agg.getTotalSteps());
-
-        DailyHealthSummary summary = dailyHealthSummaryRepository
-                .findByRecordkeyAndSummaryDate(recordkey, date)
-                .orElse(null);
-
-        if (summary == null) {
-            dailyHealthSummaryRepository.save(new DailyHealthSummary(
-                    recordkey, date, totalSteps, agg.getTotalCalories(), agg.getTotalDistance()));
-        } else {
-            summary.update(totalSteps, agg.getTotalCalories(), agg.getTotalDistance());
-        }
-    }
-
-    private void recomputeMonthly(String recordkey, String yearMonth) {
-        LocalDate monthStart = LocalDate.parse(yearMonth + "-01");
-        LocalDate monthEnd = monthStart.plusMonths(1);
-
-        HealthAggregateProjection agg = healthRecordEntryRepository.aggregate(
-                recordkey, monthStart.atStartOfDay(), monthEnd.atStartOfDay());
-        int totalSteps = (int) Math.round(agg.getTotalSteps());
-
-        MonthlyHealthSummary summary = monthlyHealthSummaryRepository
-                .findByRecordkeyAndSummaryMonth(recordkey, yearMonth)
-                .orElse(null);
-
-        if (summary == null) {
-            monthlyHealthSummaryRepository.save(new MonthlyHealthSummary(
-                    recordkey, yearMonth, totalSteps, agg.getTotalCalories(), agg.getTotalDistance()));
-        } else {
-            summary.update(totalSteps, agg.getTotalCalories(), agg.getTotalDistance());
         }
     }
 }
