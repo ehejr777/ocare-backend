@@ -112,9 +112,19 @@ public class HealthDataIngestService {
             return null;
         }
         try {
-            return java.time.OffsetDateTime.parse(raw.trim(), DateTimeFormatterProvider.LAST_UPDATE)
-                    .withOffsetSameInstant(java.time.ZoneOffset.UTC)
-                    .toLocalDateTime();
+            raw = raw.trim();
+
+            // 첫 번째 시도: ISO-8601 포맷
+            try {
+                return java.time.OffsetDateTime.parse(raw, DateTimeFormatterProvider.LAST_UPDATE_ISO)
+                        .withOffsetSameInstant(java.time.ZoneOffset.UTC)
+                        .toLocalDateTime();
+            } catch (Exception e1) {
+                // 두 번째 시도: 공백 구분 + 오프셋 포맷
+                return java.time.OffsetDateTime.parse(raw, DateTimeFormatterProvider.LAST_UPDATE_SPACE)
+                        .withOffsetSameInstant(java.time.ZoneOffset.UTC)
+                        .toLocalDateTime();
+            }
         } catch (Exception e) {
             log.warn("lastUpdate 파싱 실패, null 로 저장합니다. raw={}", raw);
             return null;

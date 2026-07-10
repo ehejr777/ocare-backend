@@ -9,6 +9,20 @@ public class DateTimeFormatterProvider {
 
     /**
      * lastUpdate 필드 파싱용 포매터 (ISO 8601 OffsetDateTime)
+     * 예: 2024-12-16T14:40:00+00:00
+     */
+    public static final DateTimeFormatter LAST_UPDATE_ISO =
+            DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+    /**
+     * lastUpdate 필드 파싱용 포매터 (공백 구분 + 오프셋)
+     * 예: 2024-12-16 14:40:00 +0000
+     */
+    public static final DateTimeFormatter LAST_UPDATE_SPACE =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z");
+
+    /**
+     * 호환성 보장 - 두 포맷을 시도
      */
     public static final DateTimeFormatter LAST_UPDATE =
             DateTimeFormatter.ISO_OFFSET_DATE_TIME;
