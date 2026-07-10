@@ -24,4 +24,18 @@ public class DateTimeFormatterProvider {
      */
     public static final DateTimeFormatter DATE_TIME =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    /**
+     * Period 필드 ISO-8601 포매터 (오프셋 포함)
+     * 예: 2024-12-16T14:40:00+0000
+     */
+    public static final DateTimeFormatter PERIOD_ISO_WITH_OFFSET =
+            DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+    /**
+     * Period 필드 공백 구분 포매터 (오프셋 없음)
+     * 예: 2024-12-16 14:40:00
+     */
+    public static final DateTimeFormatter PERIOD_SPACE_SEPARATED =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 }
