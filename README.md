@@ -63,10 +63,9 @@ ocare-backend/
 docker run -d --name ocare-mysql -e MYSQL_DATABASE=ocare -e MYSQL_USER=ocare -e MYSQL_PASSWORD=ocare1234 -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 mysql:8
 docker run -d --name ocare-redis -p 6379:6379 redis:7
 
-# 2) 애플리케이션 실행
-mvn spring-boot:run
-
 ```
+# 2) 애플리케이션 실행
+OcareBackendApplication.java에서 ctrl+shift+f10 실행
 
 ## API 요약
 
