@@ -56,16 +56,51 @@ ocare-backend/
 도메인 기준 분리했습니다. `member` 와 `health` 는 서로 다른 발급 주체의 식별자(로그인 회원 vs
 헬스 플랫폼 recordkey)를 다루므로 느슨하게 결합(`health_data_source.member_id` nullable FK)했습니다.
 
-## 실행 방법 (도커 테스트탑 설치필요)
+## 실행 방법
+
+### 1️⃣ Docker로 MySQL & Redis 준비
 
 ```bash
-# 1) MySQL / Redis 준비 (docker 예시)
-docker run -d --name ocare-mysql -e MYSQL_DATABASE=ocare -e MYSQL_USER=ocare -e MYSQL_PASSWORD=ocare1234 -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 mysql:8
-docker run -d --name ocare-redis -p 6379:6379 redis:7
+# MySQL 컨테이너 실행
+docker run -d --name ocare-mysql \
+  -e MYSQL_DATABASE=ocare \
+  -e MYSQL_USER=ocare \
+  -e MYSQL_PASSWORD=ocare1234 \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -p 3306:3306 \
+  mysql:8
 
+# Redis 컨테이너 실행
+docker run -d --name ocare-redis -p 6379:6379 redis:7
 ```
-# 2) 애플리케이션 실행
-OcareBackendApplication.java에서 ctrl+shift+f10 실행
+
+### 2️⃣ 애플리케이션 실행
+
+**방법A) IntelliJ IDE**
+- `OcareBackendApplication.java` 우클릭
+- `Run 'OcareBackendApplication'` 선택
+- 또는 `Ctrl+Shift+F10` 단축키
+
+**방법B) Maven Wrapper (CLI)**
+```bash
+cd C:\Users\tmd60\project\ocare-backend
+.\mvnw spring-boot:run
+```
+
+**방법C) 기존 Maven**
+```bash
+mvn spring-boot:run
+```
+
+### 3️⃣ 실행 확인
+
+서버 시작 후 다음이 나타나면 성공:
+```
+Tomcat initialized with port 8080 (http)
+Started OcareBackendApplication in X.XXX seconds
+```
+
+http://localhost:8080 접속 가능
 
 ## API 요약
 
@@ -77,28 +112,7 @@ OcareBackendApplication.java에서 ctrl+shift+f10 실행
 | GET | `/api/health-data/{recordkey}/daily?date=yyyy-MM-dd` | 일별 걸음수/칼로리/거리 조회 |
 | GET | `/api/health-data/{recordkey}/monthly?month=yyyy-MM` | 월별 걸음수/칼로리/거리 조회 |
 
-### 예시 요청 (헬스 데이터 저장)
 
-`POST /api/health-data` 의 Body 는 첨부된 INPUT_DATA*.json 파일과 동일한 구조를 그대로 사용합니다.
-
-```json
-{
-  "recordkey": "e27ba7ef-8bb2-424c-af1d-877e826b7487",
-  "data": {
-    "memo": "",
-    "entries": [
-      {
-        "steps": "287.6726411513615",
-        "period": { "from": "2024-11-14T23:00:00+0000", "to": "2024-11-14T23:10:00+0000" },
-        "distance": { "value": 0.2301381129210892, "unit": "km" },
-        "calories": { "value": 0, "unit": "kcal" }
-      }
-    ]
-  },
-  "lastUpdate": "2024-12-16 14:40:00 +0000",
-  "type": "steps"
-}
-```
 
 ## 필드 설명
 

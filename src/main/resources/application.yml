@@ -3,7 +3,7 @@ spring:
     name: ocare-backend
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ocare}?serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ocare}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DB_USERNAME:ocare}
     password: ${DB_PASSWORD:ocare1234}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -17,15 +17,19 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
+        jdbc:
+          time_zone: Asia/Seoul
     open-in-view: false
+
+  Jackson:
+    time-zone: Asia/Seoul
 
   data:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
-  jackson:
-    time-zone: UTC
+
 
 server:
   port: 8080
