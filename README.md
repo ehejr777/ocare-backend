@@ -56,7 +56,7 @@ ocare-backend/
 도메인 기준 분리했습니다. `member` 와 `health` 는 서로 다른 발급 주체의 식별자(로그인 회원 vs
 헬스 플랫폼 recordkey)를 다루므로 느슨하게 결합(`health_data_source.member_id` nullable FK)했습니다.
 
-## 실행 방법
+## 실행 방법 (도커 테스트탑 설치필요)
 
 ```bash
 # 1) MySQL / Redis 준비 (docker 예시)
@@ -67,8 +67,6 @@ docker run -d --name ocare-redis -p 6379:6379 redis:7
 # 2) 애플리케이션 실행
 mvn spring-boot:run
 
-# 3) 제공된 샘플 데이터(INPUT_DATA1~4.json) 를 저장 로직에 태워 적재하고 싶다면
-mvn spring-boot:run -Dspring-boot.run.profiles=sample
 ```
 
 ## API 요약
