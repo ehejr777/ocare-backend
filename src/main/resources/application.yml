@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: ocare-backend
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ocare}?serverTimezone=UTC&characterEncoding=UTF-8
+    username: ${DB_USERNAME:ocare}
+    password: ${DB_PASSWORD:ocare1234}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # 최초 1회는 create 로 테이블 생성 후 validate 로 전환 권장.
+      # docs/schema.sql 로 직접 DDL 을 실행해도 무방합니다.
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    open-in-view: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  jackson:
+    time-zone: UTC
+
+server:
+  port: 8080
+
+ocare:
+  auth:
+    session-ttl-seconds: 3600   # 로그인 세션 토큰 Redis TTL (1시간)
+  cache:
+    summary-ttl-seconds: 600    # Daily/Monthly 집계 조회 캐시 TTL (10분)
+
+logging:
+  level:
+    com.ocare.backend: DEBUG
