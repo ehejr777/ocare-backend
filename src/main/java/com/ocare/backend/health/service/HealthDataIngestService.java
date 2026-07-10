@@ -43,6 +43,9 @@ public class HealthDataIngestService {
 
     @Transactional
     public HealthDataSource ingest(HealthDataUploadRequest request, Long memberId) {
+        log.info("헬스 데이터 저장 시작: recordkey={}, type={}, entry_count={}, memberId={}",
+                request.recordkey(), request.type(), request.data().entries().size(), memberId);
+
         if (request.data() == null || request.data().entries() == null || request.data().entries().isEmpty()) {
             throw new BusinessException(ErrorCode.INVALID_HEALTH_DATA, "entries 가 비어있습니다.");
         }
@@ -57,8 +60,11 @@ public class HealthDataIngestService {
                 memberId
         );
         source = healthDataSourceRepository.save(source);
+        log.debug("HealthDataSource 저장됨: id={}, recordkey={}", source.getId(), source.getRecordkey());
 
         Set<LocalDate> touchedDates = new HashSet<>();
+        int savedCount = 0;
+        int duplicateCount = 0;
 
         for (HealthEntryDto entry : request.data().entries()) {
             boolean alreadyExists = healthRecordEntryRepository
@@ -67,7 +73,9 @@ public class HealthDataIngestService {
                     .isPresent();
 
             if (alreadyExists) {
-                // 동일 recordkey/period 데이터가 이미 저장되어 있으면 재수신된 중복 데이터로 간주하고 skip
+                duplicateCount++;
+                log.debug("중복 entry 감지 (skip): recordkey={}, period={}~{}",
+                        request.recordkey(), entry.period().from(), entry.period().to());
                 continue;
             }
 
@@ -84,13 +92,17 @@ public class HealthDataIngestService {
             );
             healthRecordEntryRepository.save(record);
             touchedDates.add(entry.period().from().toLocalDate());
+            savedCount++;
         }
+
+        log.debug("HealthRecordEntry 저장 완료: saved={}, duplicate={}, touched_dates={}",
+                savedCount, duplicateCount, touchedDates.size());
 
         // 요약 재계산은 SummaryAggregationService에 위임
         summaryAggregationService.recomputeSummaries(request.recordkey(), touchedDates);
 
-        log.info("헬스 데이터 저장 완료: recordkey={}, entries={}, touched_dates={}",
-                request.recordkey(), request.data().entries().size(), touchedDates.size());
+        log.info("헬스 데이터 저장 완료: recordkey={}, saved_entries={}, duplicate_entries={}, touched_dates={}",
+                request.recordkey(), savedCount, duplicateCount, touchedDates.size());
 
         return source;
     }

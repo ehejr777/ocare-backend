@@ -4,10 +4,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.ocare.backend.common.time.DateTimeFormatterProvider;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+
+@Slf4j
 
 /**
  * 입력 데이터 이슈 대응용 커스텀 Deserializer.
@@ -30,10 +33,17 @@ public class FlexibleDateTimeDeserializer extends JsonDeserializer<LocalDateTime
         }
         text = text.trim();
 
-        if (text.indexOf('T') >= 0) {
-            OffsetDateTime odt = OffsetDateTime.parse(text, DateTimeFormatterProvider.PERIOD_ISO_WITH_OFFSET);
-            return odt.withOffsetSameInstant(java.time.ZoneOffset.UTC).toLocalDateTime();
+        try {
+            if (text.indexOf('T') >= 0) {
+                log.debug("DateTime 파싱 (ISO-8601 format): {}", text);
+                OffsetDateTime odt = OffsetDateTime.parse(text, DateTimeFormatterProvider.PERIOD_ISO_WITH_OFFSET);
+                return odt.withOffsetSameInstant(java.time.ZoneOffset.UTC).toLocalDateTime();
+            }
+            log.debug("DateTime 파싱 (Space-separated format): {}", text);
+            return LocalDateTime.parse(text, DateTimeFormatterProvider.PERIOD_SPACE_SEPARATED);
+        } catch (Exception e) {
+            log.error("DateTime 파싱 실패: text={}, error={}", text, e.getMessage());
+            throw e;
         }
-        return LocalDateTime.parse(text, DateTimeFormatterProvider.PERIOD_SPACE_SEPARATED);
     }
 }

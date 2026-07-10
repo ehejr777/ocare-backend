@@ -48,10 +48,11 @@ public class HealthSummaryQueryService {
 
         DailySummaryResponse cached = readCache(cacheKey, DailySummaryResponse.class);
         if (cached != null) {
-            log.debug("cache hit: {}", cacheKey);
+            log.debug("Daily 요약 조회: cache hit (recordkey={}, date={})", recordkey, date);
             return cached;
         }
 
+        log.debug("Daily 요약 조회: cache miss, DB 조회 중 (recordkey={}, date={})", recordkey, date);
         DailyHealthSummary summary = dailyHealthSummaryRepository
                 .findByRecordkeyAndSummaryDate(recordkey, date)
                 .orElseThrow(() -> new BusinessException(ErrorCode.HEALTH_DATA_NOT_FOUND));
@@ -61,6 +62,8 @@ public class HealthSummaryQueryService {
                 summary.getTotalSteps(), summary.getTotalCalories(), summary.getTotalDistance());
 
         writeCache(cacheKey, response);
+        log.debug("Daily 요약 캐시 저장 (recordkey={}, date={}, ttl={}s)",
+                recordkey, date, summaryTtlSeconds);
         return response;
     }
 
@@ -69,10 +72,11 @@ public class HealthSummaryQueryService {
 
         MonthlySummaryResponse cached = readCache(cacheKey, MonthlySummaryResponse.class);
         if (cached != null) {
-            log.debug("cache hit: {}", cacheKey);
+            log.debug("Monthly 요약 조회: cache hit (recordkey={}, month={})", recordkey, yearMonth);
             return cached;
         }
 
+        log.debug("Monthly 요약 조회: cache miss, DB 조회 중 (recordkey={}, month={})", recordkey, yearMonth);
         MonthlyHealthSummary summary = monthlyHealthSummaryRepository
                 .findByRecordkeyAndSummaryMonth(recordkey, yearMonth)
                 .orElseThrow(() -> new BusinessException(ErrorCode.HEALTH_DATA_NOT_FOUND));
@@ -82,6 +86,8 @@ public class HealthSummaryQueryService {
                 summary.getTotalSteps(), summary.getTotalCalories(), summary.getTotalDistance());
 
         writeCache(cacheKey, response);
+        log.debug("Monthly 요약 캐시 저장 (recordkey={}, month={}, ttl={}s)",
+                recordkey, yearMonth, summaryTtlSeconds);
         return response;
     }
 
