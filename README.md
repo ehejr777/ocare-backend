@@ -61,14 +61,8 @@ ocare-backend/
 ### 1️⃣ Docker로 MySQL & Redis 준비
 
 ```bash
-# MySQL 컨테이너 실행
-docker run -d --name ocare-mysql \
-  -e MYSQL_DATABASE=ocare \
-  -e MYSQL_USER=ocare \
-  -e MYSQL_PASSWORD=ocare1234 \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -p 3306:3306 \
-  mysql:8
+# MySQL 컨테이너 실행 (한국 시간)
+docker run -d --name ocare-mysql -e MYSQL_DATABASE=ocare -e MYSQL_USER=ocare -e MYSQL_PASSWORD=ocare1234 -e MYSQL_ROOT_PASSWORD=root -e TZ=Asia/Seoul -p 3306:3306 mysql:8 --default-time-zone=+09:00
 
 # Redis 컨테이너 실행
 docker run -d --name ocare-redis -p 6379:6379 redis:7
