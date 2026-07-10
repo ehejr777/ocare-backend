@@ -35,21 +35,21 @@ public class FlexibleDateTimeDeserializer extends JsonDeserializer<LocalDateTime
 
         try {
             if (text.indexOf('T') >= 0) {
-                log.debug("DateTime 파싱 (ISO-8601 format): {}", text);
+                //log.debug("DateTime 파싱 (ISO-8601 format): {}", text);
 
                 // +0000 형식을 +00:00으로 변환 (표준 ISO-8601)
                 if (text.matches(".*[+-]\\d{4}$")) {
                     text = text.substring(0, text.length() - 2) + ":" + text.substring(text.length() - 2);
-                    log.debug("DateTime 타임존 포맷 정규화: {}", text);
+                    //log.debug("DateTime 타임존 포맷 정규화: {}", text);
                 }
 
                 OffsetDateTime odt = OffsetDateTime.parse(text, DateTimeFormatterProvider.PERIOD_ISO_WITH_OFFSET);
                 return odt.withOffsetSameInstant(java.time.ZoneOffset.UTC).toLocalDateTime();
             }
-            log.debug("DateTime 파싱 (Space-separated format): {}", text);
+            //log.debug("DateTime 파싱 (Space-separated format): {}", text);
             return LocalDateTime.parse(text, DateTimeFormatterProvider.PERIOD_SPACE_SEPARATED);
         } catch (Exception e) {
-            log.error("DateTime 파싱 실패: text={}, error={}", text, e.getMessage());
+            //log.error("DateTime 파싱 실패: text={}, error={}", text, e.getMessage());
             throw e;
         }
     }
