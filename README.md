@@ -159,15 +159,3 @@ mvn spring-boot:run
   발급하며, 실제 서비스라면 이 토큰을 헬스 데이터 API 인증에도 재사용할 수 있습니다.
 - 비밀번호는 BCrypt 로 암호화하여 저장합니다.
 
-## Git 제출 가이드
-
-로컬에서 아래 순서로 커밋/푸시하면 됩니다.
-
-```bash
-cd ocare-backend
-git init
-git add .
-git commit -m "feat: OCare 백엔드 과제 초기 구현 (회원가입/로그인, 헬스데이터 저장/조회)"
-git remote add origin <본인 GitHub 저장소 URL>
-git push -u origin main
-```
