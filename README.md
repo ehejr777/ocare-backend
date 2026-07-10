@@ -60,8 +60,7 @@ ocare-backend/
 
 ```bash
 # 1) MySQL / Redis 준비 (docker 예시)
-docker run -d --name ocare-mysql -e MYSQL_DATABASE=ocare -e MYSQL_USER=ocare \
-  -e MYSQL_PASSWORD=ocare1234 -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 mysql:8
+docker run -d --name ocare-mysql -e MYSQL_DATABASE=ocare -e MYSQL_USER=ocare -e MYSQL_PASSWORD=ocare1234 -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 mysql:8
 docker run -d --name ocare-redis -p 6379:6379 redis:7
 
 # 2) 애플리케이션 실행

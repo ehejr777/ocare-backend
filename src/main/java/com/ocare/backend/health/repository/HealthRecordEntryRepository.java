@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,4 +36,27 @@ public interface HealthRecordEntryRepository extends JpaRepository<HealthRecordE
     HealthAggregateProjection aggregate(@Param("recordkey") String recordkey,
                                          @Param("from") LocalDateTime from,
                                          @Param("to") LocalDateTime to);
+
+    /**
+     * 특정 recordkey와 날짜에 해당하는 모든 HealthRecordEntry 조회
+     */
+    @Query("select e from HealthRecordEntry e " +
+            "where e.recordkey = :recordkey " +
+            "and function('date', e.periodFrom) = :date " +
+            "order by e.periodFrom")
+    List<HealthRecordEntry> findByRecordkeyAndDateRange(@Param("recordkey") String recordkey,
+                                                         @Param("date") LocalDate date);
+
+    /**
+     * 특정 recordkey와 날짜 범위에 해당하는 모든 HealthRecordEntry 조회
+     */
+    @Query("select e from HealthRecordEntry e " +
+            "where e.recordkey = :recordkey " +
+            "and function('date', e.periodFrom) >= :startDate " +
+            "and function('date', e.periodFrom) <= :endDate " +
+            "order by e.periodFrom")
+    List<HealthRecordEntry> findByRecordkeyAndDateRangeBetween(
+            @Param("recordkey") String recordkey,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }
