@@ -74,13 +74,7 @@ docker run -d --name ocare-redis -p 6379:6379 redis:7
 - `OcareBackendApplication.java` 파일클릭
 - `OcareBackendApplication.main()' 실행` 파일클릭
 
-**방법B) Maven Wrapper (CLI)**
-```bash
-cd C:\Users\tmd60\project\ocare-backend
-.\mvnw spring-boot:run
-```
-
-**방법C) 기존 Maven**
+**방법B) 기존 Maven**
 ```bash
 mvn spring-boot:run
 ```
