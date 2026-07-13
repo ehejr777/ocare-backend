@@ -71,9 +71,8 @@ docker run -d --name ocare-redis -p 6379:6379 redis:7
 ### 2️⃣ 애플리케이션 실행
 
 **방법A) IntelliJ IDE**
-- `OcareBackendApplication.java` 우클릭
-- `Run 'OcareBackendApplication'` 선택
-- 또는 `Ctrl+Shift+F10` 단축키
+- `OcareBackendApplication.java` 파일클릭
+- `OcareBackendApplication.main()' 실행` 파일클릭
 
 **방법B) Maven Wrapper (CLI)**
 ```bash
