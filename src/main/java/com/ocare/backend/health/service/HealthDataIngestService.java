@@ -46,7 +46,7 @@ public class HealthDataIngestService {
         log.info("헬스 데이터 저장 시작: recordkey={}, type={}, entry_count={}, memberId={}",
                 request.recordkey(), request.type(), request.data().entries().size(), memberId);
 
-        if (request.data() == null || request.data().entries() == null || request.data().entries().isEmpty()) {
+        if (request.data().entries().isEmpty()) {
             throw new BusinessException(ErrorCode.INVALID_HEALTH_DATA, "entries 가 비어있습니다.");
         }
 
@@ -116,14 +116,14 @@ public class HealthDataIngestService {
 
             // 첫 번째 시도: ISO-8601 포맷
             try {
-                return java.time.OffsetDateTime.parse(raw, DateTimeFormatterProvider.LAST_UPDATE_ISO)
-                        .withOffsetSameInstant(java.time.ZoneOffset.UTC)
-                        .toLocalDateTime();
+                java.time.OffsetDateTime odt = java.time.OffsetDateTime.parse(raw, DateTimeFormatterProvider.LAST_UPDATE_ISO);
+                // Asia/Seoul 기준: 오프셋만 제거하고 LocalDateTime 변환 (시간값 보존)
+                return odt.toLocalDateTime();
             } catch (Exception e1) {
                 // 두 번째 시도: 공백 구분 + 오프셋 포맷
-                return java.time.OffsetDateTime.parse(raw, DateTimeFormatterProvider.LAST_UPDATE_SPACE)
-                        .withOffsetSameInstant(java.time.ZoneOffset.UTC)
-                        .toLocalDateTime();
+                java.time.OffsetDateTime odt = java.time.OffsetDateTime.parse(raw, DateTimeFormatterProvider.LAST_UPDATE_SPACE);
+                // Asia/Seoul 기준: 오프셋만 제거하고 LocalDateTime 변환 (시간값 보존)
+                return odt.toLocalDateTime();
             }
         } catch (Exception e) {
             log.warn("lastUpdate 파싱 실패, null 로 저장합니다. raw={}", raw);

@@ -128,10 +128,9 @@ http://localhost:8080 접속 가능
 2. **period.from/to 날짜 포맷 2종 혼재**
    `"2024-11-15 00:00:00"` (공백 구분, 오프셋 없음) 와 `"2024-11-14T23:10:00+0000"`
    (ISO-8601, +0000 오프셋) 두 형식이 recordkey(데이터 소스)별로 갈려 있었습니다. →
-   `FlexibleDateTimeDeserializer` 로 두 포맷을 모두 파싱하고 UTC 기준 `LocalDateTime` 으로
-   통일해 저장했습니다. 오프셋이 없는 포맷은 동일 payload 내 `lastUpdate` 등 다른 시각
-   필드들이 UTC로 취급되고 있다고 보고 동일하게 UTC 로 간주했습니다 (실제 서비스라면 데이터
-   제공사에 포맷 표준화를 요청하는 것이 우선입니다).
+   `FlexibleDateTimeDeserializer` 로 두 포맷을 모두 파싱하고 Asia/Seoul 기준 `LocalDateTime` 으로
+   통일해 저장했습니다. ISO-8601 포맷의 오프셋은 제거하고 시간값만 보존하여 저장합니다 
+   (application.yml에서 Asia/Seoul로 설정).
 
 3. **lastUpdate 필드의 제3의 포맷**
    `"2024-12-16 14:40:00 +0000"` 처럼 공백 구분 + 오프셋이 함께 있는 세 번째 포맷이 메타
