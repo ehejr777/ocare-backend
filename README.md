@@ -56,7 +56,7 @@ ocare-backend/
 도메인 기준 분리했습니다. `member` 와 `health` 는 서로 다른 발급 주체의 식별자(로그인 회원 vs
 헬스 플랫폼 recordkey)를 다루므로 느슨하게 결합(`health_data_source.member_id` nullable FK)했습니다.
 
-## 실행 방법
+## 실행 방법 (실행전 jdk 17로 셋팅)
 
 ### 1️⃣ Docker로 MySQL & Redis 준비
 
