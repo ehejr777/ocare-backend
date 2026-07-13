@@ -79,7 +79,7 @@ public class SummaryAggregationService {
                 .findByRecordkeyAndSummaryDate(recordkey, date)
                 .orElseGet(() -> new DailyHealthSummary(recordkey, date, 0, 0.0, 0.0));
 
-        summary.update((int) totalSteps, totalCalories, totalDistance);
+        summary.update((int) Math.round(totalSteps), totalCalories, totalDistance);
 
         dailyHealthSummaryRepository.save(summary);
         log.debug("Daily 요약 저장: recordkey={}, date={}, steps={}, distance={}, calories={}",
@@ -113,7 +113,7 @@ public class SummaryAggregationService {
                 .findByRecordkeyAndSummaryMonth(recordkey, monthStr)
                 .orElseGet(() -> new MonthlyHealthSummary(recordkey, monthStr, 0, 0.0, 0.0));
 
-        summary.update((int) totalSteps, totalCalories, totalDistance);
+        summary.update((int) Math.round(totalSteps), totalCalories, totalDistance);
 
         monthlyHealthSummaryRepository.save(summary);
         log.debug("Monthly 요약 저장: recordkey={}, month={}, steps={}, distance={}, calories={}",

@@ -5,9 +5,9 @@ sample-data/INPUT_DATA*.json 을 실제 서버 저장 로직(HealthDataIngestSer
 파싱/중복제거/집계하여 docs/query-results/ 에 CSV 로 산출합니다.
 
 동일 규칙:
-  - steps: 문자열/숫자 혼재 -> float 로 파싱 후, 집계 시점에 반올림하여 int 로 표현
+  - steps: 문자열/숫자 혼재 -> float 로 파싱 후, 집계 시점에 반올림하여 int 로 표현 (Java의 Math.round()와 동일: half up)
   - period.from/to: "yyyy-MM-dd HH:mm:ss" 또는 ISO "yyyy-MM-ddTHH:mm:ss+0000" 두 포맷 모두 지원,
-    UTC 기준으로 통일
+    Asia/Seoul 기준으로 통일 (application.yml 설정)
   - (recordkey, period_from, period_to) 중복 데이터는 1건만 반영 (idempotent upsert 와 동일한 결과)
 """
 import json
@@ -20,6 +20,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SAMPLE_DIR = BASE_DIR / "sample-data"
 OUT_DIR = BASE_DIR / "docs" / "query-results"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def java_round(x: float) -> int:
+    """
+    Java의 Math.round()와 동일한 반올림 (round half up).
+    Python 3의 banker's rounding과 다름.
+    """
+    return int(x + 0.5)
 
 
 def parse_period(value: str) -> datetime:
@@ -84,7 +92,7 @@ def main():
         daily_rows.append({
             "recordkey": recordkey,
             "date": date,
-            "steps": round(steps),
+            "steps": java_round(steps),
             "calories": round(calories, 2),
             "distance": round(distance, 4),
         })
@@ -100,7 +108,7 @@ def main():
         monthly_rows.append({
             "recordkey": recordkey,
             "month": month,
-            "steps": round(steps),
+            "steps": java_round(steps),
             "calories": round(calories, 2),
             "distance": round(distance, 4),
         })
